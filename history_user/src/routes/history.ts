@@ -42,7 +42,7 @@ router.post('/create', async (req, res) => {
         return res.status(400).json(validationResult.error.details)
     }
     const history = await client.query('INSERT INTO user_actions (user_id, action) VALUES ($1, $2)', [body.user_id, body.action])
-    res.status(200).json(history.rows)
+    res.status(200).json(history.rows[0])
 })
 
 export default router
