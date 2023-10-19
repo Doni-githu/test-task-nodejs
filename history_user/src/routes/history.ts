@@ -16,9 +16,11 @@ router.get('/all', async (req, res) => {
     };
 
 
-    if (req.query.user_id && typeof(req.query.user_id) === "number") {
-        query.text += ' WHERE u.id = $1';
-        query.values.push(Number(req.query.user_id));
+    if (req.query.user_id) {
+        if (Number.isInteger(req.query.user_id)) {
+            query.text += ' WHERE u.id = $1';
+            query.values.push(Number(req.query.user_id));
+        }
     }
 
     if (req.query.page) {
@@ -33,9 +35,9 @@ router.get('/all', async (req, res) => {
 })
 
 router.post('/create', async (req, res) => {
-    const body:CreateHistory = req.body
+    const body: CreateHistory = req.body
     const validationResult = HistorySchema.validate(body)
-    if(validationResult.error){
+    if (validationResult.error) {
         return res.status(400).json(validationResult.error.details)
     }
     const history = await client.query('INSERT INTO user_actions (user_id, action) VALUES ($1, $2)', [body.user_id, body.action])
