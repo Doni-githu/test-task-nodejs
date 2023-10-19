@@ -4,7 +4,7 @@ const client = new Client({
     host: 'localhost',
     database: 'postgres',
     password: 'doni',
-    port: 5432,
+    port: Number(process.env.DATABASE_PORT),
 })
 
 export default client

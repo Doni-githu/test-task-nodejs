@@ -1,7 +1,7 @@
+require('dotenv').config()
 const express = require('express')
 const client = require('./config')
 const UserRouter = require('./routes/user')
-require('dotenv').config()
 const app = express()
 
 

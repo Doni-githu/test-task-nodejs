@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node --watch src/index"
+    "dev": "node --watch -r dotenv/config src/index "
   },
   "keywords": [],
   "author": "",

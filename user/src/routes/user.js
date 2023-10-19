@@ -25,7 +25,9 @@ router.post('/create', async (req, res) => {
     const body = req.body
     const validateResult = UserSchema.validate(body)
     if (validateResult.error) {
-        return res.status(400).json(validateResult.error.details)
+        return res.status(400).json(validateResult.error.details.map(item => ({
+            message: item.message
+        })))
     }
     const result = await client.query('INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING id, username, email', [body.username, body.password, body.email])
     await addToHistory('create', result.rows[0].id)
