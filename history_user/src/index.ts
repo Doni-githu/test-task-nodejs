@@ -1,9 +1,11 @@
-import express from "express"
-import client from "./config"
-import HistoryRouter from "./routes/history"
 import * as dotenv from "dotenv"
-import compression from "compression"
 dotenv.config()
+import express from "express"
+import db from "./config"
+import HistoryRouter from "./routes/history"
+import compression from "compression"
+import redisClient from "./redis"
+
 const app = express()
 
 
@@ -25,12 +27,16 @@ app.use('/api/history', HistoryRouter)
 
 function Run() {
     const port = process.env.PORT || 8080
-    client.connect((error) => {
+    db.connect((error) => {
         if (error) {
             throw error
         }
-        console.log('Connected!')
+        console.log('Connected to Postgresql!')
     })
+    redisClient.connect()
+        .then(() => {
+            console.log("Connected to Redis!")
+        })
     app.listen(port, () => {
         console.log(`Server running port ${port}`)
     })

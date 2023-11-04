@@ -1,6 +1,7 @@
 const router = require('express').Router()
-const client = require('../config')
+const db = require('../config')
 const axios = require('axios')
+const redisClient = require("../redis")
 const UserSchema = require('../schemas/user')
 
 async function addToHistory(action, user_id) {
@@ -16,8 +17,12 @@ async function addToHistory(action, user_id) {
 }
 
 router.get('/all', async (req, res) => {
-    const data = await client.query('SELECT * FROM users;')
-    res.status(200).json(data.rows)
+    let data = await redisClient.get("users")
+    if(!data){
+        data = await db.query('SELECT * FROM users;')
+        redisClient.set("users", JSON.stringify(data.rows))
+    }
+    res.status(200).json(JSON.parse(data))
 })
 
 
@@ -29,17 +34,17 @@ router.post('/create', async (req, res) => {
             message: item.message
         })))
     }
-    const result = await client.query('INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING id, username, email', [body.username, body.password, body.email])
+    const result = await db.query('INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING id, username, email', [body.username, body.password, body.email])
     await addToHistory('create', result.rows[0].id)
     res.status(200).json(result.rows[0])
 })
 
 router.put('/update/:id', async (req, res) => {
     const body = req.body
-    const oldUser = await client.query('SELECT * FROM users WHERE id=$1', [req.params.id])
+    const oldUser = await db.query('SELECT * FROM users WHERE id=$1', [req.params.id])
     const result = await addToHistory("update", req.params.id)
     if (result === "success") {
-        const updatedUser = await client.query(
+        const updatedUser = await db.query(
             'UPDATE users SET username=$1, password=$2, email=$3 WHERE id=$4 RETURNING username,password,email',
             [
                 body.username ? body.username : oldUser.rows[0].username,

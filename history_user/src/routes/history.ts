@@ -1,5 +1,5 @@
 import { Router } from "express";
-import client from "../config";
+import db from "../config";
 import { CreateHistory, Query } from "../types";
 import HistorySchema from "../schemas/history"
 
@@ -30,7 +30,7 @@ router.get('/all', async (req, res) => {
     }
     query.text += ` LIMIT $${query.values.length + 1}`;
     query.values.push(limit);
-    const data = await client.query(query)
+    const data = await db.query(query)
     res.status(200).json(data.rows)
 })
 
@@ -41,7 +41,7 @@ router.post('/create', async (req, res) => {
         console.log(validationResult.error)
         return res.status(400).json(validationResult.error.details)
     }
-    const history = await client.query('INSERT INTO user_actions (user_id, action) VALUES ($1, $2)', [body.user_id, body.action])
+    const history = await db.query('INSERT INTO user_actions (user_id, action) VALUES ($1, $2)', [body.user_id, body.action])
     res.status(200).json(history.rows[0])
 })
 

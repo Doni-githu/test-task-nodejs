@@ -1,6 +1,8 @@
 require('dotenv').config()
 const express = require('express')
-const client = require('./config')
+const redisClient = require('./redis')
+const db = require('./config')
+
 const UserRouter = require('./routes/user')
 const app = express()
 const compression = require('compression')
@@ -22,12 +24,16 @@ app.use('/api/user', UserRouter)
 
 function Run() {
     const port = process.env.PORT || 8000
-    client.connect((error) => {
+    db.connect((error) => {
         if (error) {
             throw error
         }
-        console.log('Connected!')
+        console.log('Connected to Postgresql!')
     })
+    redisClient.connect()
+        .then(() => {
+            console.log("Connected to Redis")
+        })
     app.listen(port, () => {
         console.log(`Server running port ${port}`)
     })
