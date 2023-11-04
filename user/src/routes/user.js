@@ -18,9 +18,11 @@ async function addToHistory(action, user_id) {
 
 router.get('/all', async (req, res) => {
     let data = await redisClient.get("users")
-    if(!data){
-        data = await db.query('SELECT * FROM users;')
-        redisClient.set("users", JSON.stringify(data.rows))
+    if (!data) {
+        const data2 = await db.query('SELECT * FROM users;')
+        redisClient.setEx("users", 15, JSON.stringify(data2.rows))
+        res.status(200).json(data2.rows)
+        return
     }
     res.status(200).json(JSON.parse(data))
 })
