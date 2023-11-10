@@ -4,7 +4,6 @@ import express from "express"
 import db from "./config"
 import HistoryRouter from "./routes/history"
 import compression from "compression"
-import redisClient from "./redis"
 
 const app = express()
 
@@ -33,10 +32,6 @@ function Run() {
         }
         console.log('Connected to Postgresql!')
     })
-    redisClient.connect()
-        .then(() => {
-            console.log("Connected to Redis!")
-        })
     app.listen(port, () => {
         console.log(`Server running port ${port}`)
     })
